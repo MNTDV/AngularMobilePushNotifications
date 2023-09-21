@@ -1,0 +1,10 @@
+{
+  "hosting": {
+    "public": "dist/angular-mobile-push-notifications",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
