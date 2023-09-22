@@ -8,7 +8,7 @@ import { CLIENT_CONFIG, PUBLIC_KEY } from './firebase.config';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit {
   title = 'AngularMobilePushNotifications';
   token = '';
   app = initializeApp(CLIENT_CONFIG);
@@ -26,38 +26,30 @@ export class AppComponent implements OnInit{
   }
 
   async requestPermission(): Promise<void> {
-    getToken(this.messaging, { vapidKey: PUBLIC_KEY }).then((currentToken) => {
-      if (currentToken) {
-        // Send the token to your server and update the UI if necessary
-        console.log(currentToken)
+    try {
+      let permission = await Notification.requestPermission();
+      alert('test');
+      if (permission === 'granted') {
+        const currentToken = await getToken(this.messaging, { vapidKey: PUBLIC_KEY });
+        if (currentToken) {
+          this.tokenReceived(currentToken);
+        } else {
+          console.log('No registration token available. Request permission to generate one.');
 
-        this.tokenReceived(currentToken);
-        // ...
+        }
+
       } else {
-        // Show permission request UI
-        console.log('No registration token available. Request permission to generate one.');
-        // ...
+        alert('Denied');
+        console.log('Permission denied');
       }
-    }).catch((err) => {
-      console.log('An error occurred while retrieving token. ', err);
-      // ...
-    });
-    // this.token = await getToken(messaging, { vapidKey: 'BKUGZGgyBtnTiZVpuRyYBuRl2eWmolusxAEZMrosTIHNBBkG_jgCUX2vEWHIBUSmN5Qga1fHjKC0jkfgXPNMGBg' })
-    //
-    // console.log(messaging);
-    // let permission = await Notification.requestPermission();
-    //   if (permission === 'granted') {
-    //     console.log('Notification permission granted.');
-    //     // TODO(developer): Retrieve a registration token for use with FCM.
-    //      this.token = await getToken(messaging, { vapidKey: 'BKUGZGgyBtnTiZVpuRyYBuRl2eWmolusxAEZMrosTIHNBBkG_jgCUX2vEWHIBUSmN5Qga1fHjKC0jkfgXPNMGBg' })
-    //   } else {
-    //     console.log('Unable to get permission to notify.');
-    //   }
-
+    } catch (ex) {
+      alert(ex);
+      console.log('An error occurred while retrieving token. ', ex);
+    }
   }
 
   private tokenReceived(token: string): void {
-    localStorage.setItem('fcm-token',token)
+    localStorage.setItem('fcm-token', token);
     this.token = token;
     console.log('Register');
     onMessage(this.messaging, (payload) => {
