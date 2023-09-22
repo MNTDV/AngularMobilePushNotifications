@@ -1,36 +1,37 @@
-import { Component } from '@angular/core';
-import { getMessaging, getToken } from '@firebase/messaging';
+import { Component, OnInit } from '@angular/core';
+import { getMessaging, getToken, onMessage } from '@firebase/messaging';
 import { initializeApp, FirebaseApp } from '@firebase/app';
+import { CLIENT_CONFIG, PUBLIC_KEY } from './firebase.config';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit{
   title = 'AngularMobilePushNotifications';
   token = '';
-  app: FirebaseApp;
+  app = initializeApp(CLIENT_CONFIG);
+  messaging = getMessaging();
 
-  constructor() {
-    const firebaseConfig = {
-      apiKey: "AIzaSyAvIXDZwIrNDeWK8ywy7KxGc02gDYBSfU4",
-      authDomain: "angularmobilepushnotifications.firebaseapp.com",
-      projectId: "angularmobilepushnotifications",
-      storageBucket: "angularmobilepushnotifications.appspot.com",
-      messagingSenderId: "1077866644071",
-      appId: "1:1077866644071:web:9cce5018b0226455260ac2",
-      measurementId: "G-PBH90KEG0E"
-    };
 
-    this.app = initializeApp(firebaseConfig);
+  ngOnInit() {
+    const existingToken = localStorage.getItem('fcm-token');
+    if (!existingToken) {
+      return;
+    }
+
+
+    // this.tokenReceived(existingToken);
   }
+
   async requestPermission(): Promise<void> {
-    const messaging = getMessaging();
-    getToken(messaging, { vapidKey: 'BKUGZGgyBtnTiZVpuRyYBuRl2eWmolusxAEZMrosTIHNBBkG_jgCUX2vEWHIBUSmN5Qga1fHjKC0jkfgXPNMGBg' }).then((currentToken) => {
+    getToken(this.messaging, { vapidKey: PUBLIC_KEY }).then((currentToken) => {
       if (currentToken) {
         // Send the token to your server and update the UI if necessary
         console.log(currentToken)
-        this.token = currentToken;
+
+        this.tokenReceived(currentToken);
         // ...
       } else {
         // Show permission request UI
@@ -41,8 +42,6 @@ export class AppComponent {
       console.log('An error occurred while retrieving token. ', err);
       // ...
     });
-
-    // const messaging = getMessaging(this.app);
     // this.token = await getToken(messaging, { vapidKey: 'BKUGZGgyBtnTiZVpuRyYBuRl2eWmolusxAEZMrosTIHNBBkG_jgCUX2vEWHIBUSmN5Qga1fHjKC0jkfgXPNMGBg' })
     //
     // console.log(messaging);
@@ -54,6 +53,16 @@ export class AppComponent {
     //   } else {
     //     console.log('Unable to get permission to notify.');
     //   }
+
+  }
+
+  private tokenReceived(token: string): void {
+    localStorage.setItem('fcm-token',token)
+    this.token = token;
+    console.log('Register');
+    onMessage(this.messaging, (payload) => {
+      console.log('Message received. ', payload);
+    });
   }
 }
 

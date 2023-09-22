@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "build-sw": "node ./esbuild.config.js"
   },
   "private": true,
   "dependencies": {
@@ -20,7 +21,6 @@
     "@angular/pwa": "^16.2.3",
     "@angular/router": "^16.1.0",
     "@angular/service-worker": "^16.1.0",
-    "@firebase/messaging": "^0.12.4",
     "firebase": "^10.4.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
@@ -31,6 +31,7 @@
     "@angular/cli": "~16.1.4",
     "@angular/compiler-cli": "^16.1.0",
     "@types/jasmine": "~4.3.0",
+    "esbuild": "^0.19.3",
     "jasmine-core": "~4.6.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
